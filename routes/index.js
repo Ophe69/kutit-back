@@ -1,14 +1,41 @@
 var express = require('express');
 var router = express.Router();
 
+var usersModel = require('../models/users')
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-//signin
-router.post('/signin', (re, res) => {
-  res.json(true)
+//SIGN-IN
+router.post('/sign-in', async function(req,res,next){
+
+  var result = false
+  var user = null
+  var error = []
+  
+  if(req.body.emailFromFront == ''
+  || req.body.passwordFromFront == ''
+  ){
+    error.push('champs vides')
+  }
+
+  if(error.length == 0){
+    const user = await userModel.findOne({
+      email: req.body.emailFromFront,
+      password: req.body.passwordFromFront
+    })
+
+    if(user){
+      result = true
+    } else {
+      error.push('email ou mot de passe incorrect')
+    }
+  }
+
+  res.json({result, user, error})
+
 })
 
 //signup
