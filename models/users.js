@@ -2,15 +2,10 @@ var mongoose = require('mongoose');
 
 var usersSchemas = mongoose.Schema({
     id: String,
-    firstName: String,
-    lastName: String,
+    userName: String,
     mail : String, 
     password : String,
-    age: Number, 
-    gender: Number, 
-    latitude: Number, 
-    longitude : Number,
-    avatar: String,
+    token: String,
     history: [{type: mongoose.Schema.Types.ObjectId, ref: 'orders'}], // clef étrangère qui le lie à une autre collection
     favorites: [{type: mongoose.Schema.Types.ObjectId, ref: 'professionnel'}],
     reviews : [{type: mongoose.Schema.Types.ObjectId, ref: 'reviews'}],
