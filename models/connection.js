@@ -4,7 +4,7 @@ var options = {
     connectTimeoutMS: 5000,
     useNewUrlParser: true,
     useUnifiedTopology: true
-   };
+};
 
 
 // décommenter la ligne pour repasser à une connexion à la DB sans passer par les variables d'environnement

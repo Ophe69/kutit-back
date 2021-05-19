@@ -7,41 +7,60 @@ var usersModel = require('../models/users')
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
-
+/* 
 //SIGN-IN
-router.post('/sign-in', async function(req,res,next){
-
-  var result = false
-  var user = null
-  var error = []
+router.post('/signin', function(req, res, next) {
+  let email = req.body.email;
+  let password = req.body.password;
+  if (!email || !password){
+    res.json({result: false})
+  } else {
+    res.json({ result: true, user: { pseudo: 'pim', firstName: 'Pierre',lastName: 'ferrand', email: 'pierre@gmail.com'} })
+  }
+  })
   
-  if(req.body.emailFromFront == ''
+
+//SIGNUP
+router.post('/sign-up', async function(req,res,next){
+
+  var error = [] //erreur dans un tableau n'est pas la meilleure solution 
+  var result = false
+  var saveUser = null
+
+  const data = await userModel.findOne({
+    email: req.body.emailFromFront
+  })
+
+  if(data != null){
+    error.push('utilisateur déjà présent')
+  }
+
+  if(req.body.usernameFromFront == ''
+  || req.body.emailFromFront == ''
   || req.body.passwordFromFront == ''
   ){
     error.push('champs vides')
   }
 
+
   if(error.length == 0){
-    const user = await userModel.findOne({
+    var newUser = new userModel({
+      username: req.body.usernameFromFront,
       email: req.body.emailFromFront,
       password: req.body.passwordFromFront
     })
-
-    if(user){
+  
+    saveUser = await newUser.save()
+  
+    
+    if(saveUser){
       result = true
-    } else {
-      error.push('email ou mot de passe incorrect')
     }
   }
+  
 
-  res.json({result, user, error})
-
-})
-
-//signup
-router.post('/signup', (re, res) => {
-  res.json(true)
-})
+  res.json({result, saveUser, error})
+}) */
 
 //Map
 router.post('/search', (req, res) => {
