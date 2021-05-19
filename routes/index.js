@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-var usersModel = require('../models/users')
+const ProfessionnelsModel = require('../models/professionnels');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -63,16 +63,17 @@ router.post('/sign-up', async function(req,res,next){
 }) */
 
 //Map
-router.post('/search', (req, res) => {
+router.post('/search', async(req, res) => {
   let latitude = req.body.latitude;
   let longitude = req.body.longitude;
-  let barberShop = req.body.barberShop; // Boolean
-  let date = req.body.date
+  console.log(latitude, longitude);
 
-  if(date){
-    res.json({ result: true })
+  const professionnels = await ProfessionnelsModel.find();
+
+  if( latitude && longitude ) {
+    res.json({ result: true, professionnels });
   } else {
-    res.json({ result: false })
+    res.json({ result: false, message: 'missing information, please enable geolocation' });
   }
 })
 
