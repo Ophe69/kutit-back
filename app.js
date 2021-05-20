@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 require('./models/connection');
+require('./models/users');
 
 var app = express();
 
