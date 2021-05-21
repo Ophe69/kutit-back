@@ -1,18 +1,22 @@
 var mongoose = require('mongoose');
 
-var ProfessionnelsSchemas = mongoose.Schema({
-    id: String,
+var PrestationSchema = mongoose.Schema({
+    type: String, // degrade, bouleAZ, coloration, chignon, etc
+    prix: Number // 15, 30
+});
+
+var ProfessionnelsSchema = mongoose.Schema({
     nom: String,
     prenom: String,
-    latitude: Number,
-    longitude : Number,
     mail : String,
     password : String,
     statut: String,
-    prestations: [{type: mongoose.Schema.Types.ObjectId, ref: 'prestations'}], // clef étrangère qui le lie à une autre collection
+    latitude: Number,
+    longitude : Number,
+    prestations: [PrestationSchema]
 });
 
-const ProfessionnelsModel = mongoose.model('Professionnels', ProfessionnelsSchemas);
+const ProfessionnelsModel = mongoose.model('Professionnels', ProfessionnelsSchema);
 
 module.exports = ProfessionnelsModel;
 

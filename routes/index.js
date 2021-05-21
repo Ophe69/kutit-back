@@ -51,6 +51,12 @@ router.post('/search', async(req, res) => {
 
   const professionnels = await ProfessionnelsModel.find();
 
+  professionnels.map(p => {
+    console.log('log prestations', p.prestations);
+  })
+
+  
+
   if( latitude && longitude ) {
     res.json({ result: true, professionnels });
   } else {
