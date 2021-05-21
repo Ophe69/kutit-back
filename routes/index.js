@@ -52,6 +52,7 @@ router.post('/search', async(req, res) => {
   const professionnels = await ProfessionnelsModel.find();
 
   if( latitude && longitude ) {
+    console.log(professionnels)
     res.json({ result: true, professionnels });
   } else {
     res.json({ result: false, message: 'missing information, please enable geolocation' });
