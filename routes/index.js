@@ -6,7 +6,7 @@ var router = express.Router();
 
 
 const ProfessionnelsModel = require('../models/professionnels');
-var usersModel = require('../models/users');
+const usersModel = require('../models/users');
 
 //const hash = bcrypt.hashSync(myPlaintextPassword, cost);
 
@@ -51,21 +51,21 @@ router.post('/signin', async function(req,res,next){
 /*SIGN-UP*/
 router.post('/signup', async function(req,res,next){
 
-  console.log('req.body:' + req.body);
+  //console.log('req.body:' + req.body);
   var error = []
   var result = false
   var saveUser = null
   
   if(req.body.signupUserName !== ''
-  || req.body.signupEmail !== ''
-  || req.body.signupPassword !== ''
+  && req.body.signupEmail !== ''
+  && req.body.signupPassword !== ''
   ){
   var newUser = new usersModel({
     userName: req.body.signupUserName,
     mail: req.body.signupEmail,
-    password: req.body.signupPassword,
+    password: req.body.signupPassword
   })
-  console.log(newUser)
+  //console.log(newUser)
   saveUser = await newUser.save()
   //console.log(saveUser);
   if(saveUser){
