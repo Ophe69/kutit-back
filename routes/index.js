@@ -16,68 +16,6 @@ router.get('/', function(req, res, next) {
 });
 
 
-/* SIGN-IN */
-router.post('/signin', async function(req,res,next){
-
-  console.log(req.body);
-  var error = []
-  var result = false
-  let exist = false
-
-  const mail = req.body.signInEmail;
-  const password = req.body.signInPassword;
-
-  const user = await usersModel.findOne({ mail: mail, password: password});
-
-  console.log('user log', user)
-  
-  if(mail == '' || password == ''){
-    res.json({ Home: false, error: 'please fill all the fields' });
-  }
-  if(user){
-    exist = true;
-    if(password == user.password){
-      res.json({ Home: true, token: user.token });
-    } else {
-      res.json({ Home: false, error: 'wrong password' });
-    } 
-  } else{
-    res.json({ Home: false, error: 'user doesnt exist' });
-  }
-  res.json({result : true, error})
-  
-});
-
-/*SIGN-UP*/
-router.post('/signup', async function(req,res,next){
-
-  //console.log('req.body:' + req.body);
-  var error = []
-  var result = false
-  var saveUser = null
-  
-  if(req.body.signupUserName !== ''
-  && req.body.signupEmail !== ''
-  && req.body.signupPassword !== ''
-  ){
-  var newUser = new usersModel({
-    userName: req.body.signupUserName,
-    mail: req.body.signupEmail,
-    password: req.body.signupPassword
-  })
-  //console.log(newUser)
-  saveUser = await newUser.save()
-  //console.log(saveUser);
-  if(saveUser){
-    result = true
-  }
-
-  }else {
-    res.json({ Home: true, saveUser, token: user.token })
-  }
-  res.json({result : true, saveUser, error})
-});
-
 //Map
 router.post('/search', async(req, res) => {
   let latitude = req.body.latitude;
@@ -86,11 +24,55 @@ router.post('/search', async(req, res) => {
 
   const professionnels = await ProfessionnelsModel.find();
 
+  professionnels.map(p => {
+    console.log('log prestations', p.prestations);
+  })
+
+  
+
   if( latitude && longitude ) {
+    console.log(professionnels)
     res.json({ result: true, professionnels });
   } else {
     res.json({ result: false, message: 'missing information, please enable geolocation' });
   }
-})
+});
+
+
+router.post('/prestations', async(req, res) => {
+  const prestations = await ProfessionnelsModel.findById(req.body.professionnel).populate('prestations').exec();
+  
+  res.render(prestations);
+});
+
+//create professional
+router.post('/create-pro', async(req, res) => {
+  const nom = req.body.nom;
+  const prenom = req.body.prenom;
+  const mail = req.body.mail;
+  const password = req.body.password;
+  const statut = req.body.statut;
+  const latitude = req.body.latitude;
+  const longitude = req.body.longitude;
+  const prestations = req.body.prestations;
+  
+  console.log(req.body)
+
+  const newPro = new ProfessionnelsModel({
+    nom: nom,
+    prenom: prenom,
+    mail: mail,
+    password: password,
+    statut: statut,
+    latitude: latitude,
+    longitude: longitude,
+    prestations: prestations
+  });
+  const proSaved = await newPro.save();
+
+  console.log(proSaved);
+
+  res.json({ result: true })
+});
 
 module.exports = router;
