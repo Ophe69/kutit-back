@@ -12,6 +12,7 @@ require('./models/connection');
 require('./models/users');
 
 var app = express();
+app.use(express.urlencoded({extended: true}))
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'reactapp/build')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

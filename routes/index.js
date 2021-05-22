@@ -1,8 +1,10 @@
-const { log } = require('debug');
+//const { log } = require('debug');
 var express = require('express');
 var router = express.Router();
 
-//var bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt');
+var uid2 = require('uid2');
+
 
 
 const ProfessionnelsModel = require('../models/professionnels');
@@ -16,67 +18,82 @@ router.get('/', function(req, res, next) {
 });
 
 
+
+
 /* SIGN-IN */
-router.post('/signin', async function(req,res,next){
 
-  console.log(req.body);
-  var error = []
-  var result = false
-  let exist = false
+router.post('/signin', async (req,res) =>{
 
-  const mail = req.body.signInEmail;
-  const password = req.body.signInPassword;
+  var userName = req.body.userName
+  var password = req.body.password
+  var message = ''
+  var exist = false
+  var login = false
+  var passwordOk = false
+  var existingUserName = await usersModel.findOne({ userName: userName});
+  var existingUserPassword = await usersModel.findOne({ password: password });
 
-  const user = await usersModel.findOne({ mail: mail, password: password});
-
-  console.log('user log', user)
-  
-  if(mail == '' || password == ''){
-    res.json({ Home: false, error: 'please fill all the fields' });
+  if (userName == '' || password == ''){
+    res.json({login : false, message: 'Merci de ne pas laisser de champs vide!'})
   }
-  if(user){
+  if(!existingUserName){
+    exist = false;
+    res.json({login : false, exist: false, message: 'Utilisateur introuvable, merci de créer un compte!'})
+  } 
+  if(existingUserName){
     exist = true;
-    if(password == user.password){
-      res.json({ Home: true, token: user.token });
-    } else {
-      res.json({ Home: false, error: 'wrong password' });
-    } 
-  } else{
-    res.json({ Home: false, error: 'user doesnt exist' });
+    //res.json({login : false, exist: true, message: 'on a trouvé un mec'})
+    if(password == existingUserName.password){
+      passwordOk = true;
+      res.json({login : true, exist: true, message: 'Vous êtes connecté'})
+    }else{
+      res.json({login : false, exist: true, passwordOk : true, message: 'Mauvais mot de passe'})
+    }
+    
   }
-  res.json({result : true, error})
-  
+
 });
+
+
+
+
 
 /*SIGN-UP*/
-router.post('/signup', async function(req,res,next){
 
-  //console.log('req.body:' + req.body);
-  var error = []
-  var result = false
-  var saveUser = null
+router.post('/signup', async (req,res) =>{
+
   
-  if(req.body.signupUserName !== ''
-  && req.body.signupEmail !== ''
-  && req.body.signupPassword !== ''
-  ){
-  var newUser = new usersModel({
-    userName: req.body.signupUserName,
-    mail: req.body.signupEmail,
-    password: req.body.signupPassword
-  })
-  //console.log(newUser)
-  saveUser = await newUser.save()
-  //console.log(saveUser);
-  if(saveUser){
-    result = true
-  }
+  
+  var userName = req.body.userName
+  var mail = req.body.mail
+  var password = req.body.password
+  var userSaved = null
+  exist = true
+  const existingUserEmail = await usersModel.findOne({ mail: mail });
+  const existingUserName = await usersModel.findOne({ userName: userName });
 
-  }else {
-    res.json({ Home: true, saveUser, token: user.token })
-  }
-  res.json({result : true, saveUser, error})
+  if(!existingUserEmail && !existingUserName){
+    var message = ''
+    var registered = false
+    var exist = false;
+    if (userName == '' || mail == '' || password == ''){
+      res.json({registered : false, message: 'Merci de ne pas laisser de champs vide'})
+
+    }else {
+      var newUser = new usersModel({
+        userName: userName,
+        mail: mail,
+        password: password,
+        token: uid2(32)
+      })
+      //console.log('new user',newUser);
+      userSaved = await newUser.save();
+      //console.log('user Saved', userSaved);
+      res.json({ registered: true, message: 'Compte bien créé!', userSaved}); //, token: userSaved.token
+    }
+  } res.json({ registered: false, message: 'Cet utilisateur existe déjà!'});
 });
+
 
 //Map
 router.post('/search', async(req, res) => {
