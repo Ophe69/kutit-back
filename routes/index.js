@@ -62,8 +62,6 @@ router.post('/signin', async (req,res) =>{
 
 router.post('/signup', async (req,res) =>{
 
-  
-  
   var userName = req.body.userName
   var mail = req.body.mail
   var password = req.body.password
