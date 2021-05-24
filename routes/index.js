@@ -1,9 +1,20 @@
-//const { log } = require('debug');
+const { log } = require('debug');
 var express = require('express');
 var router = express.Router();
 
 var bcrypt = require('bcrypt');
 var uid2 = require('uid2');
+
+/*var uniqid = require('uniqid');
+ var fs = require('fs');
+const request = require('sync-request');
+
+var cloudinary = require('cloudinary').v2;
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_NAME, 
+  api_key: process.env.API_KEY, 
+  api_secret: process.env.API_SECRET_KEY,
+}); */
 
 
 
@@ -93,7 +104,7 @@ router.post('/signup', async (req,res) =>{
 });
 
 
-//Map
+/* MAP */
 router.post('/search', async(req, res) => {
   let latitude = req.body.latitude;
   let longitude = req.body.longitude;
@@ -151,5 +162,25 @@ router.post('/create-pro', async(req, res) => {
 
   res.json({ result: true })
 });
+
+
+
+/* CLOUDINARY */
+
+/* router.post('/upload', async function(req, res, next) {
+
+  var imagePath = './tmp/'+uniqid()+'.jpg';
+  var resultCloudinary = await cloudinary.uploader.upload(imagePath);
+  //var resultCopy = await req.files.avatar.mv(pictureName);
+  if(!resultCopy) {
+    var resultCloudinary = await cloudinary.uploader.upload(pictureName);
+
+
+  res.json(resultCloudinary, //url: resultCloudinary.url);
+  }else{
+    res.json({error: resultcopy})
+  }
+   fs.unlinkSync(imagePath// pictureName);
+}); */
 
 module.exports = router;
