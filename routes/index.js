@@ -6,7 +6,7 @@ var bcrypt = require('bcrypt');
 var uid2 = require('uid2');
 
 /*var uniqid = require('uniqid');
- var fs = require('fs');
+var fs = require('fs');
 const request = require('sync-request');
 
 var cloudinary = require('cloudinary').v2;
@@ -56,7 +56,8 @@ router.post('/signin', async (req,res) =>{
     //res.json({login : false, exist: true, message: 'on a trouvé un mec'})
     if(password == existingUserName.password){
       passwordOk = true;
-      res.json({login : true, exist: true, message: 'Vous êtes connecté'})
+      //res.json({login : true, exist: true, message: 'Vous êtes connecté', token: existingUserName.token, pseudo: existingUserName.userName})
+      res.json({login : true, exist: true, message: 'Vous êtes connecté', token: existingUserName.token})
     }else{
       res.json({login : false, exist: true, passwordOk : true, message: 'Mauvais mot de passe'})
     }
@@ -100,10 +101,12 @@ router.post('/signup', async (req,res) =>{
       //console.log('new user',newUser);
       userSaved = await newUser.save();
       console.log('user Saved', userSaved);
-      res.json({ registered: true, message: 'Compte bien créé!', userSaved}); //, token: userSaved.token
+      //res.json({ registered: true, message: 'Compte bien créé!', token: userSaved.token, pseudo: existingUserName.userName}); //, token: userSaved.token
+      res.json({ registered: true, message: 'Compte bien créé!', token: userSaved.token}); //, token: userSaved.token
     }
   } res.json({ registered: false, message: 'Cet utilisateur existe déjà!'});
 });
+
 
 
 /* MAP */
@@ -114,13 +117,19 @@ router.post('/search', async(req, res) => {
 
   const professionnels = await ProfessionnelsModel.find();
 
+  professionnels.map(p => {
+    console.log('log prestations', p.prestations);
+  })
+
+  
+
   if( latitude && longitude ) {
+    console.log(professionnels)
     res.json({ result: true, professionnels });
   } else {
     res.json({ result: false, message: 'missing information, please enable geolocation' });
   }
 });
-
 
 
 router.post('/prestations', async(req, res) => {
@@ -176,7 +185,7 @@ router.post('/create-pro', async(req, res) => {
   }else{
     res.json({error: resultcopy})
   }
-   fs.unlinkSync(imagePath// pictureName);
+  fs.unlinkSync(imagePath// pictureName);
 }); */
 
 module.exports = router;
