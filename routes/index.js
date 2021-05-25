@@ -76,6 +76,7 @@ router.post('/signup', async (req,res) =>{
   var userName = req.body.userName
   var mail = req.body.mail
   var password = req.body.password
+  var image = req.body.image
   var userSaved = null
   exist = true
   const existingUserEmail = await usersModel.findOne({ mail: mail });
@@ -93,6 +94,7 @@ router.post('/signup', async (req,res) =>{
         userName: userName,
         mail: mail,
         password: password,
+        image: image,
         token: uid2(32)
       })
       //console.log('new user',newUser);
