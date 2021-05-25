@@ -6,6 +6,7 @@ var usersSchema = mongoose.Schema({
     password : String,
     image: String,
     token: String,
+    proId: [{type: mongoose.Schema.Types.ObjectId, ref: 'Professionnels'}]
 });
 
 const usersModel = mongoose.model('users', usersSchema);

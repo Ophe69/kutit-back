@@ -16,10 +16,9 @@ cloudinary.config({
   api_secret: process.env.API_SECRET_KEY,
 }); */
 
-
-
 const ProfessionnelsModel = require('../models/professionnels');
 const usersModel = require('../models/users');
+const OrdersModel = require('../models/orders');
 
 //const hash = bcrypt.hashSync(myPlaintextPassword, cost);
 
@@ -108,8 +107,7 @@ router.post('/signup', async (req,res) =>{
 });
 
 
-
-/* MAP */
+// get Professionel from Homepage
 router.post('/search', async(req, res) => {
   let latitude = req.body.latitude;
   let longitude = req.body.longitude;
@@ -169,7 +167,6 @@ router.post('/create-pro', async(req, res) => {
 });
 
 
-
 /* CLOUDINARY */
 
 /* router.post('/upload', async function(req, res, next) {
@@ -187,5 +184,58 @@ router.post('/create-pro', async(req, res) => {
   }
   fs.unlinkSync(imagePath// pictureName);
 }); */
+
+
+// add order
+router.post('/add-order', async(req, res) => {
+
+  const user = await usersModel.findOne({token: req.body.token});
+  const pro = await ProfessionnelsModel.findOne({_id: req.body.proFrontId})
+
+  if(user && pro){
+
+    const newOrder = new OrdersModel({
+      type: req.body.type,
+      prix: req.body.prix,
+      date: req.body.date,
+      userId: user._id,
+      proId: pro._id
+    });
+
+    const order = await newOrder.save();
+
+    if(order){
+      res.json({message: 'order saved', order});
+    } else {
+      res.json({message: 'failed to save order'})
+    }
+
+  } else {
+    res.json({message: 'failed to save order, user token or pro not found'});
+  }
+  
+  
+})
+
+
+//orders history
+router.get('/orders', async (req, res) => {
+
+  const user = await usersModel.findOne({token: req.query.token});
+
+  // console.log(user);
+
+  if(user){
+
+    const orders = await OrdersModel.find( { userId: user._id } ).populate('proId').exec();
+
+    // console.log(orders);
+    res.json({result: true, orders})
+  } else {
+  res.json({result: false})
+  }
+  ;
+});
+
 
 module.exports = router;
