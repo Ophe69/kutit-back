@@ -56,7 +56,7 @@ router.post('/signin', async (req,res) =>{
     //res.json({login : false, exist: true, message: 'on a trouvé un mec'})
     if(password == existingUserName.password){
       passwordOk = true;
-      res.json({login : true, exist: true, message: 'Vous êtes connecté'})
+      res.json({login : true, exist: true, message: 'Vous êtes connecté', token: existingUserName.token, pseudo: existingUserName.userName})
     }else{
       res.json({login : false, exist: true, passwordOk : true, message: 'Mauvais mot de passe'})
     }
@@ -99,8 +99,8 @@ router.post('/signup', async (req,res) =>{
       })
       //console.log('new user',newUser);
       userSaved = await newUser.save();
-      console.log('user Saved', userSaved);
-      res.json({ registered: true, message: 'Compte bien créé!', userSaved}); //, token: userSaved.token
+      //console.log('user Saved', userSaved);
+      res.json({ registered: true, message: 'Compte bien créé!', token: userSaved.token, pseudo: existingUserName.userName}); //, token: userSaved.token
     }
   } res.json({ registered: false, message: 'Cet utilisateur existe déjà!'});
 });
