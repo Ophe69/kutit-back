@@ -6,7 +6,7 @@ var bcrypt = require('bcrypt');
 var uid2 = require('uid2');
 
 /*var uniqid = require('uniqid');
- var fs = require('fs');
+var fs = require('fs');
 const request = require('sync-request');
 
 var cloudinary = require('cloudinary').v2;
@@ -19,6 +19,7 @@ cloudinary.config({
 const ProfessionnelsModel = require('../models/professionnels');
 const usersModel = require('../models/users');
 const OrdersModel = require('../models/orders');
+const { PromiseProvider } = require('mongoose');
 
 //const hash = bcrypt.hashSync(myPlaintextPassword, cost);
 
@@ -51,10 +52,12 @@ router.post('/signin', async (req,res) =>{
     res.json({login : false, exist: false, message: 'Utilisateur introuvable, merci de créer un compte!'})
   } 
   if(existingUserName){
+    //console.log(existingUserName);
     exist = true;
     //res.json({login : false, exist: true, message: 'on a trouvé un mec'})
     if(password == existingUserName.password){
       passwordOk = true;
+      //res.json({login : true, exist: true, message: 'Vous êtes connecté', token: existingUserName.token, pseudo: existingUserName.userName})
       res.json({login : true, exist: true, message: 'Vous êtes connecté', token: existingUserName.token, pseudo: existingUserName.userName})
     }else{
       res.json({login : false, exist: true, passwordOk : true, message: 'Mauvais mot de passe'})
@@ -81,6 +84,8 @@ router.post('/signup', async (req,res) =>{
   const existingUserEmail = await usersModel.findOne({ mail: mail });
   const existingUserName = await usersModel.findOne({ userName: userName });
 
+  //console.log('existingUserEmail', existingUserEmail)
+
   if(!existingUserEmail && !existingUserName){
     var message = ''
     var registered = false
@@ -97,7 +102,7 @@ router.post('/signup', async (req,res) =>{
         token: uid2(32)
       })
       //console.log('new user',newUser);
-      userSaved = await newUser.save();
+      var userSaved = await newUser.save();
       //console.log('user Saved', userSaved);
       res.json({ registered: true, message: 'Compte bien créé!', token: userSaved.token, pseudo: userSaved.userName}); //, token: userSaved.token
     }
@@ -105,22 +110,45 @@ router.post('/signup', async (req,res) =>{
 });
 
 
+
+/* AFFICHE INFO PROFILE*/
+
+router.get ('/profile', async (req,res) =>{
+  
+  var profileFilled = false
+  var message = ('')
+  var token = req.query.token
+  var userConnected = await usersModel.findOne({ token: token });
+  //console.log('req.query', req.query)
+  //console.log('un utilisateur trouvé', userConnected);
+  
+  if(userConnected){
+    res.json({profileFilled: true, userConnected})
+  }else{
+    res.json({ profileFilled: false, message: 'aucun compte'})
+  }
+  
+  
+})
+
+
+
 // get Professionel from Homepage
 router.post('/search', async(req, res) => {
   let latitude = req.body.latitude;
   let longitude = req.body.longitude;
-  console.log(latitude, longitude);
+  //console.log(latitude, longitude);
 
   const professionnels = await ProfessionnelsModel.find();
 
   professionnels.map(p => {
-    console.log('log prestations', p.prestations);
+    //console.log('log prestations', p.prestations);
   })
 
   
 
   if( latitude && longitude ) {
-    console.log(professionnels)
+    //console.log(professionnels)
     res.json({ result: true, professionnels });
   } else {
     res.json({ result: false, message: 'missing information, please enable geolocation' });
@@ -145,7 +173,7 @@ router.post('/create-pro', async(req, res) => {
   const longitude = req.body.longitude;
   const prestations = req.body.prestations;
   
-  console.log(req.body)
+  //console.log(req.body)
 
   const newPro = new ProfessionnelsModel({
     nom: nom,
@@ -159,7 +187,7 @@ router.post('/create-pro', async(req, res) => {
   });
   const proSaved = await newPro.save();
 
-  console.log(proSaved);
+  //console.log(proSaved);
 
   res.json({ result: true })
 });
@@ -180,7 +208,7 @@ router.post('/create-pro', async(req, res) => {
   }else{
     res.json({error: resultcopy})
   }
-   fs.unlinkSync(imagePath// pictureName);
+  fs.unlinkSync(imagePath// pictureName);
 }); */
 
 
