@@ -75,6 +75,8 @@ router.post('/signin', async (req,res) =>{
 
 router.post('/signup', async (req,res) =>{
 
+  console.log(req.body);
+
   var userName = req.body.userName
   var mail = req.body.mail
   var password = req.body.password
@@ -106,7 +108,9 @@ router.post('/signup', async (req,res) =>{
       //console.log('user Saved', userSaved);
       res.json({ registered: true, message: 'Compte bien créé!', token: userSaved.token, pseudo: userSaved.userName}); //, token: userSaved.token
     }
-  } res.json({ registered: false, message: 'Cet utilisateur existe déjà!'});
+  } else {
+    res.json({ registered: false, message: 'Cet utilisateur existe déjà!'});
+  } 
 });
 
 
@@ -172,6 +176,9 @@ router.post('/create-pro', async(req, res) => {
   const latitude = req.body.latitude;
   const longitude = req.body.longitude;
   const prestations = req.body.prestations;
+  const imageNumber = req.body.imageNumber;
+  const stars = req.body.stars;
+  const votedBy = req.body.votedBy;
   
   //console.log(req.body)
 
@@ -183,7 +190,10 @@ router.post('/create-pro', async(req, res) => {
     statut: statut,
     latitude: latitude,
     longitude: longitude,
-    prestations: prestations
+    prestations: prestations,
+    imageNumber: imageNumber,
+    stars: stars,
+    votedBy: votedBy
   });
   const proSaved = await newPro.save();
 
