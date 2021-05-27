@@ -13,6 +13,9 @@ var ProfessionnelsSchema = mongoose.Schema({
     statut: String,
     latitude: Number,
     longitude : Number,
+    imageNumber: Number,
+    stars: Number,
+    votedBy: Number,
     prestations: [PrestationSchema]
 });
 
