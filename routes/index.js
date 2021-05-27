@@ -100,7 +100,7 @@ router.post('/signup', async (req,res) =>{
       //console.log('new user',newUser);
       userSaved = await newUser.save();
       //console.log('user Saved', userSaved);
-      res.json({ registered: true, message: 'Compte bien créé!', token: userSaved.token, pseudo: existingUserName.userName}); //, token: userSaved.token
+      res.json({ registered: true, message: 'Compte bien créé!', token: userSaved.token, pseudo: userSaved.userName}); //, token: userSaved.token
     }
   } res.json({ registered: false, message: 'Cet utilisateur existe déjà!'});
 });
