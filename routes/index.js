@@ -2,8 +2,8 @@ const { log } = require('debug');
 var express = require('express');
 var router = express.Router();
 
-var bcrypt = require('bcrypt');
 var uid2 = require('uid2');
+var bcrypt = require('bcrypt'); 
 
 /*var uniqid = require('uniqid');
 var fs = require('fs');
@@ -52,13 +52,13 @@ router.post('/signin', async (req,res) =>{
     res.json({login : false, exist: false, message: 'Utilisateur introuvable, merci de créer un compte!'})
   } 
   if(existingUserName){
-    //console.log(existingUserName);
+    
     exist = true;
-    //res.json({login : false, exist: true, message: 'on a trouvé un mec'})
-    if(password == existingUserName.password){
+    
+    if(bcrypt.compareSync(password, existingUserName.password)){
       passwordOk = true;
-      //res.json({login : true, exist: true, message: 'Vous êtes connecté', token: existingUserName.token, pseudo: existingUserName.userName})
-      res.json({login : true, exist: true, message: 'Vous êtes connecté', token: existingUserName.token, pseudo: existingUserName.userName})
+      
+      res.json({login : true, exist: true, message: 'Vous êtes connecté', token: existingUserName.token, pseudo: existingUserName.userName, image: existingUserName.image })
     }else{
       res.json({login : false, exist: true, passwordOk : true, message: 'Mauvais mot de passe'})
     }
@@ -86,7 +86,7 @@ router.post('/signup', async (req,res) =>{
   const existingUserEmail = await usersModel.findOne({ mail: mail });
   const existingUserName = await usersModel.findOne({ userName: userName });
 
-  //console.log('existingUserEmail', existingUserEmail)
+
 
   if(!existingUserEmail && !existingUserName){
     var message = ''
@@ -96,17 +96,18 @@ router.post('/signup', async (req,res) =>{
       res.json({registered : false, message: 'Merci de ne pas laisser de champs vide'})
 
     }else {
+      var hash = bcrypt.hashSync(req.body.password, 10);
       var newUser = new usersModel({
         userName: userName,
         mail: mail,
-        password: password,
+        password: hash,
         image: image,
         token: uid2(32)
       })
-      //console.log('new user',newUser);
+   
       var userSaved = await newUser.save();
-      //console.log('user Saved', userSaved);
-      res.json({ registered: true, message: 'Compte bien créé!', token: userSaved.token, pseudo: userSaved.userName}); //, token: userSaved.token
+
+      res.json({ registered: true, message: 'Compte bien créé!', token: userSaved.token, pseudo: userSaved.userName, image: userSaved.image}); 
     }
   } else {
     res.json({ registered: false, message: 'Cet utilisateur existe déjà!'});
@@ -127,7 +128,8 @@ router.get ('/profile', async (req,res) =>{
   //console.log('un utilisateur trouvé', userConnected);
   
   if(userConnected){
-    res.json({profileFilled: true, userConnected})
+    console.log("userConnected", userConnected)
+    res.json({profileFilled: true, userConnected, image: userConnected.image})
   }else{
     res.json({ profileFilled: false, message: 'aucun compte'})
   }
@@ -135,6 +137,27 @@ router.get ('/profile', async (req,res) =>{
   
 })
 
+/* EDITER INFOS DU PROFIL */
+
+router.put ('/editProfile', async (req,res) => {
+
+  const token = req.body.token;
+  const newPseudo = req.body.newPseudo;
+  const newEmail = req.body.newEmail;
+  const newPassword = req.body.newPassword;
+
+  const profileUpdated = await usersModel.findOne({ token: token })
+
+  if(profileUpdated){
+    profileUpdated.userName = newPseudo;
+    profileUpdated.mail = newEmail;
+    profileUpdated.password = newPassword;
+    profileUpdated.save();
+    console.log('nouvelles données user', profileUpdated)
+  }
+  res.json({profileUpdated})
+
+})
 
 
 // get Professionel from Homepage
@@ -159,7 +182,9 @@ router.post('/search', async(req, res) => {
   }
 });
 
-
+//Mongoose queries have a populate() function that lets you load a movie and its corresponding director and actors in one line:
+//here => loads just the prestations fromm prfessionnel 
+//execPopulate() à la place de exec() de
 router.post('/prestations', async(req, res) => {
   const prestations = await ProfessionnelsModel.findById(req.body.professionnel).populate('prestations').exec();
   
@@ -180,7 +205,6 @@ router.post('/create-pro', async(req, res) => {
   const stars = req.body.stars;
   const votedBy = req.body.votedBy;
   
-  //console.log(req.body)
 
   const newPro = new ProfessionnelsModel({
     nom: nom,
@@ -197,7 +221,6 @@ router.post('/create-pro', async(req, res) => {
   });
   const proSaved = await newPro.save();
 
-  //console.log(proSaved);
 
   res.json({ result: true })
 });
@@ -259,13 +282,14 @@ router.get('/orders', async (req, res) => {
 
   const user = await usersModel.findOne({token: req.query.token});
 
-  // console.log(user);
+  console.log(user);
 
   if(user){
 
     const orders = await OrdersModel.find( { userId: user._id } ).populate('proId').exec();
+    //pas de populate: map sur une liste 
 
-    // console.log(orders);
+    console.log(orders);
     res.json({result: true, orders})
   } else {
   res.json({result: false})
